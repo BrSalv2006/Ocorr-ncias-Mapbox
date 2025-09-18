@@ -55,7 +55,7 @@ const handlers = {
 		});
 
 		self.postMessage({ type: 'fireDataComplete', data: processedFires });
-	},
+	}
 };
 
 self.onmessage = async ({ data }) => {
