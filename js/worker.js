@@ -24,13 +24,10 @@ const fetchWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
 
 const handlers = {
 	fireData: async () => {
-		self.postMessage({ type: 'progress', message: 'A obter novos dados de incêndios...' });
-
 		const url = 'https://api.fogos.pt/v2/incidents/active?all=true';
 		const response = await fetchWithRetry(url);
 
 		if (!response?.success) {
-			self.postMessage({ type: 'error', message: 'Falha na obtenção de dados de incêndios.' });
 			return;
 		}
 
@@ -50,7 +47,7 @@ const handlers = {
 				status: properties.status,
 				startDate: new Date(properties.dateTime.sec * 1000).toLocaleString(),
 				updated: new Date(properties.updated.sec * 1000).toLocaleString(),
-				important: properties.status === 'Em Curso' && properties.terrain > 15 && timeElapsed >= 3,
+				important: (properties.terrain > 15 || properties.aerial > 0) && timeElapsed >= 3,
 			};
 		});
 
@@ -65,7 +62,6 @@ self.onmessage = async ({ data }) => {
 			await handler(data);
 		} catch (err) {
 			console.error(err);
-			self.postMessage({ type: 'error', message: `Ocorreu um erro no worker: ${err.message}` });
 		}
 	}
 };
